@@ -1,0 +1,65 @@
+# ──────────────────────────────
+#  Python / Poetry
+# ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyd-d
+*.so
+*.egg-info/
+*.egg
+*.log
+
+# Poetry (in-project)
+.venv/
+
+# Poetry lock-bash artifacts
+poetry.lock.bak
+
+# mypy / ruff / pytest caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+coverage.xml
+*.cover
+*.coverage
+.cache/
+
+# ──────────────────────────────
+#  Editor / IDE
+# ──────────────────────────────
+# PyCharm / IntelliJ
+.idea/
+# VSCode
+.vscode/
+.history/
+
+# macOS / Windows OS junk
+.DS_Store
+Thumbs.db
+
+# ──────────────────────────────
+#  Environment & secrets
+# ──────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ──────────────────────────────
+#  Databases / media / uploads
+# ──────────────────────────────
+*.sqlite3
+*.db
+media/
+uploads/
+
+# ──────────────────────────────
+#  Docker / build artefacts
+# ──────────────────────────────
+docker/*.log
+build/
+dist/
