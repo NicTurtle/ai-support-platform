@@ -191,29 +191,31 @@
       }, 300);
     });
 
-    function addMessage(content, sender = 'user', isLoading = false) {
-      const msg = document.createElement('div');
-      msg.className = `break-words whitespace-pre-wrap px-4 py-2 rounded-lg text-sm w-fit max-w-[75%] ` +
-        (sender === 'user'
-          ? 'bg-blue-600 self-end text-left ml-auto mt-1 mb-1'
-          : 'bg-gray-700 self-start text-left mr-auto mt-1 mb-1');
+function addMessage(content, sender = 'user', isLoading = false) {
+  const msg = document.createElement('div');
+  msg.className = `break-words whitespace-pre-wrap px-4 py-3 rounded-lg text-sm leading-tight w-fit max-w-[75%] my-3 ` +
+    (sender === 'user'
+      ? 'bg-blue-600 self-end text-left ml-auto'
+      : 'bg-gray-700 self-start text-left mr-auto');
 
-      if (isLoading) {
-        msg.classList.add('animate-pulse');
-        msg.textContent = content.trim();
-      } else {
-        if (sender === 'user') {
-          msg.textContent = content.trim();
-        } else {
-          const rendered = md.render(content.trim());
-          msg.innerHTML = rendered;
-        }
-      }
-
-      messages.appendChild(msg);
-      messages.scrollTop = messages.scrollHeight;
-      return msg;
+  if (isLoading) {
+    msg.classList.add('animate-pulse');
+    msg.textContent = content.trim();
+  } else {
+    if (sender === 'user') {
+      msg.textContent = content.trim();
+    } else {
+      const rendered = md.renderInline(content.trim()); // inline — без p
+      msg.innerHTML = rendered;
     }
+  }
+
+  // msg.style.outline = '1px solid red'; // можешь оставить, если ещё отлаживаешь
+
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+  return msg;
+}
 
     async function sendMessage() {
       if (isWaiting) return;
