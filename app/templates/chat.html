@@ -4,8 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   <title>AI Support Chat</title>
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at bottom right, rgba(59,130,246,0.2), transparent 60%) no-repeat;
+      background-size: 100% 100%;
+      background-color: #1f1f1f;
+      animation: gradientGlow 6s ease-in-out infinite alternate;
+    }
+
+    body.open-chat {
+      overflow: hidden;
+    }
+
+    @keyframes gradientGlow {
+      0% {
+        background-position: bottom right;
+        background-size: 100% 100%;
+      }
+      100% {
+        background-position: bottom right;
+        background-size: 110% 110%;
+      }
+    }
+
     #messages::-webkit-scrollbar {
       width: 8px;
     }
@@ -21,31 +47,104 @@
     #messages::-webkit-scrollbar-thumb:hover {
       background: #888;
     }
+    #messages a {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+    .pulse-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 9999px;
+      animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+      background-color: rgba(96, 165, 250, 0.5);
+      pointer-events: none;
+    }
+    @keyframes ping {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+    .btn-click:active {
+      transform: scale(0.95);
+      transition: transform 0.1s;
+    }
+    @media (max-width: 640px) {
+      #chatBox {
+        left: 2.5vw;
+        right: 2.5vw;
+        width: 95vw;
+        height: 75vh;
+        bottom: 5vh;
+      }
+    }
+    #chatBox {
+      transition: all 0.3s ease-in-out;
+      opacity: 0;
+      transform: scale(0.95);
+      height: 38rem;
+      max-height: 85vh;
+    }
+    #chatBox.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .intro-text {
+      transition: all 0.8s ease;
+    }
+    .intro-text.hide {
+      opacity: 0;
+      transform: scale(1.1);
+    }
+    .intro-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
   </style>
 </head>
-<body class="bg-gray-900 text-white">
-  <!-- Chat Toggle Button -->
-  <div class="fixed bottom-4 right-6 z-50">
-    <button id="toggleChat" class="bg-blue-600 hover:bg-blue-700 p-4 rounded-full shadow-lg">
-      💬
-    </button>
+<body class="text-white overflow-x-hidden">
+  <div id="introText" class="absolute inset-0 flex flex-col items-center justify-center text-white text-center font-mono px-4 z-0 intro-text show">
+    <h1 class="text-xl sm:text-2xl md:text-3xl mb-2">This site is a live demo of AI software built by Mykola C.</h1>
+    <h2 class="text-lg sm:text-xl md:text-2xl mb-4">
+      <a href="https://www.upwork.com/freelancers/aidev" class="text-blue-400 hover:text-blue-300 underline" style="pointer-events: auto;">
+        AI Integrator & Backend Developer
+      </a>
+    </h2>
+    <p class="text-sm sm:text-base md:text-lg text-gray-300 max-w-2xl">
+      It showcases real-time GPT-powered assistants for business automation, support, and consulting.<br />
+      You can integrate a similar AI chat into your own website — fully customized for your business needs.
+    </p>
   </div>
 
-  <!-- Chat Box -->
-  <div id="chatBox" class="hidden fixed bottom-20 right-6 w-full max-w-md h-[32rem] bg-gray-800 rounded-xl shadow-lg flex flex-col overflow-hidden">
-    <div class="bg-gray-700 px-4 py-2 font-bold">Support</div>
-
-    <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-2">
-      <div class="break-words whitespace-pre-wrap px-4 py-2 rounded-lg text-sm max-w-[75%] w-fit bg-gray-700 self-start text-left mr-auto">👋 Hi! I’m your AI assistant, built by Mykola C. I can help you explore how AI and automation might work in your business. All work is done via UpWork.
-What would you like to know?</div>
+  <div id="chatToggleWrapper" class="fixed bottom-4 right-6 z-50">
+    <div class="relative w-16 h-16">
+      <div class="pulse-ring" id="pulseRing"></div>
+      <button id="toggleChat" class="absolute inset-0 bg-blue-600 hover:bg-blue-700 p-4 rounded-full shadow-lg btn-click">
+        💬
+      </button>
     </div>
+  </div>
+
+  <div id="chatBox" class="hidden fixed bottom-20 right-6 left-auto w-[95vw] max-w-md max-h-[85vh] bg-gray-800 rounded-xl shadow-lg flex flex-col overflow-hidden">
+    <div class="bg-gray-700 px-4 py-2 font-bold flex justify-between items-center">
+      <span>AI Assistant</span>
+      <button id="closeChat" class="text-white text-xl leading-none hover:text-red-400">×</button>
+    </div>
+
+    <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
 
     <div class="flex border-t border-gray-700">
       <input
         id="chatInput"
         type="text"
         placeholder="Type a message..."
-        class="w-full bg-gray-900 text-white px-4 py-2 outline-none resize-none overflow-hidden"
+        autocomplete="off"
+        class="w-full bg-gray-700 text-white px-4 py-2 outline-none resize-none overflow-hidden placeholder-gray-300 focus:outline-none transition duration-150"
       />
       <button id="sendBtn" class="bg-blue-600 hover:bg-blue-700 px-4 text-white">→</button>
     </div>
@@ -53,42 +152,85 @@ What would you like to know?</div>
 
   <script>
     const toggleBtn = document.getElementById('toggleChat');
+    const closeBtn = document.getElementById('closeChat');
+    const chatToggleWrapper = document.getElementById('chatToggleWrapper');
     const chatBox = document.getElementById('chatBox');
     const messages = document.getElementById('messages');
     const input = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
+    const pulseRing = document.getElementById('pulseRing');
+    const introText = document.getElementById('introText');
+
+    const md = window.markdownit();
+    let lastTypingElement = null;
+    let firstToggle = true;
+    let isWaiting = false;
 
     toggleBtn.addEventListener('click', () => {
-      chatBox.classList.toggle('hidden');
+      introText.classList.remove('show');
+      introText.classList.add('hide');
+      chatToggleWrapper.classList.add('hidden');
+      chatBox.classList.remove('hidden');
+      chatBox.classList.add('show');
+      document.body.classList.add('open-chat');
+      setTimeout(() => messages.scrollTop = messages.scrollHeight, 300);
+      if (firstToggle) {
+        pulseRing.remove();
+        firstToggle = false;
+      }
+    });
+
+    closeBtn.addEventListener('click', () => {
+      chatBox.classList.remove('show');
+      setTimeout(() => {
+        chatBox.classList.add('hidden');
+        chatToggleWrapper.classList.remove('hidden');
+        introText.classList.remove('hide');
+        introText.classList.add('show');
+        document.body.classList.remove('open-chat');
+      }, 300);
     });
 
     function addMessage(content, sender = 'user', isLoading = false) {
       const msg = document.createElement('div');
-      msg.className = `break-words whitespace-pre-wrap px-4 py-2 rounded-lg text-sm max-w-[75%] w-fit ` +
+      msg.className = `break-words whitespace-pre-wrap px-4 py-2 rounded-lg text-sm w-fit max-w-[75%] ` +
         (sender === 'user'
-          ? 'bg-blue-600 self-end text-right ml-auto'
-          : 'bg-gray-700 self-start text-left mr-auto');
+          ? 'bg-blue-600 self-end text-left ml-auto mt-1 mb-1'
+          : 'bg-gray-700 self-start text-left mr-auto mt-1 mb-1');
 
-      if (isLoading) msg.classList.add('animate-pulse');
-      msg.textContent = content.trim();
+      if (isLoading) {
+        msg.classList.add('animate-pulse');
+        msg.textContent = content.trim();
+      } else {
+        if (sender === 'user') {
+          msg.textContent = content.trim();
+        } else {
+          const rendered = md.render(content.trim());
+          msg.innerHTML = rendered;
+        }
+      }
+
       messages.appendChild(msg);
       messages.scrollTop = messages.scrollHeight;
       return msg;
     }
 
-    let lastTypingElement = null;
-
     async function sendMessage() {
+      if (isWaiting) return;
+
       const text = input.value.trim();
       if (!text) return;
       addMessage(text, 'user');
       input.value = '';
+      input.disabled = true;
+      sendBtn.disabled = true;
 
       if (lastTypingElement) {
         lastTypingElement.remove();
         lastTypingElement = null;
       }
 
+      isWaiting = true;
       lastTypingElement = addMessage('Typing response...', 'bot', true);
 
       try {
@@ -100,21 +242,44 @@ What would you like to know?</div>
           body: JSON.stringify({ message: text })
         });
 
+        if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
-        lastTypingElement.textContent = data.response || 'No response.';
-        lastTypingElement.classList.remove('animate-pulse');
+
+        lastTypingElement.remove();
         lastTypingElement = null;
+        addMessage(data.response || 'No response.', 'bot');
       } catch (error) {
-        lastTypingElement.textContent = 'Error fetching response.';
-        lastTypingElement.classList.remove('animate-pulse');
-        lastTypingElement = null;
+        if (lastTypingElement) {
+          lastTypingElement.textContent = 'Error fetching response.';
+          lastTypingElement.classList.remove('animate-pulse');
+          lastTypingElement = null;
+        }
         console.error(error);
+      } finally {
+        isWaiting = false;
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
       }
     }
 
     sendBtn.addEventListener('click', sendMessage);
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') sendMessage();
+    });
+
+    window.addEventListener('load', () => {
+      addMessage(`👋 **Hello and welcome!**
+
+I’m an AI assistant
+
+Designed and built by [**Mykola C.**](https://www.upwork.com/freelancers/aidev)
+
+This is more than a demo — it’s a **working showcase** of how **AI** can enhance your business with **automation**, **smart replies**, and **real-time support**.
+
+**Considering AI for your workflow?**
+
+Let me show what’s possible.`, 'bot');
     });
   </script>
 </body>
