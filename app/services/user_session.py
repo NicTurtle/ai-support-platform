@@ -41,3 +41,4 @@ class UserSessionService:
             .values(updated_at=datetime.utcnow())
         )
         await db.commit()
+
