@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ai_support_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app:cached
+    env_file:
+      - ../.env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: ai_support_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ai_support
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ai_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
