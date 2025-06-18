@@ -1,6 +1,8 @@
+"""API endpoints for chat interactions."""
+
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,10 +15,14 @@ router = APIRouter()
 
 
 class ChatRequest(BaseModel):
+    """Payload for chat requests."""
+
     message: str
 
 
 async def get_async_session() -> AsyncSession:
+    """FastAPI dependency that yields an async DB session."""
+
     async with async_session() as session:
         yield session
 
@@ -27,6 +33,8 @@ async def chat_with_bot(
     request: Request,
     db: AsyncSession = Depends(get_async_session),
 ):
+    """Send a message to the assistant and return the response."""
+
     user_id = request.cookies.get("user_id")
     if not user_id:
         raise HTTPException(status_code=400, detail="Missing user_id in cookie")

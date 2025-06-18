@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+"""FastAPI application entry point."""
+
 from contextlib import asynccontextmanager
+from fastapi import FastAPI
 
 from app.api.v1 import chat
 from app.db.init_db import init_db
@@ -10,6 +12,8 @@ API_PREFIX = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Initialize resources on startup."""
+
     await init_db()
     yield
 

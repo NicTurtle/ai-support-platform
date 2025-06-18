@@ -1,3 +1,5 @@
+"""Pydantic models for dialog payloads."""
+
 from pydantic import BaseModel, Field
 
 
