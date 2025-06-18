@@ -1,13 +1,18 @@
+"""Business logic for managing user chat sessions."""
+
 from datetime import datetime
 from uuid import UUID, uuid4
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.user_session import UserSession
 from app.models.user_session import UserSessionCreate
 
 
 class UserSessionService:
+    """Service layer for ``UserSession`` database operations."""
+
     @staticmethod
     async def create_session(db: AsyncSession, data: UserSessionCreate) -> UserSession:
         session = UserSession(

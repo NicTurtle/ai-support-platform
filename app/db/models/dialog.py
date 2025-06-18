@@ -1,4 +1,5 @@
-# Будет использоваться позже (GPT-ответы, сообщения и т.д.)
+"""Placeholder ORM model for future dialog storage."""
+
 from sqlalchemy.orm import DeclarativeBase
 
 class Placeholder:

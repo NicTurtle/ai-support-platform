@@ -1,13 +1,18 @@
-from sqlalchemy import Column, String, DateTime, func
+"""ORM model for user chat sessions."""
+
+import uuid
+from datetime import datetime
+
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
-import uuid
 
 from app.db.session import Base
 
 
 class UserSession(Base):
+    """Database table tracking user conversations."""
+
     __tablename__ = "user_sessions"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

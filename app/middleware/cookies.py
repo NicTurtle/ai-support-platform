@@ -1,13 +1,18 @@
+"""Middleware for managing user identification cookies."""
+
+from uuid import uuid4
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from uuid import uuid4
 
 from app.db.session import async_session
 from app.models.user_session import UserSessionCreate
 from app.services.user_session import UserSessionService
 
 class UserIDCookieMiddleware(BaseHTTPMiddleware):
+    """Ensure each visitor has a unique ``user_id`` cookie."""
+
     async def dispatch(self, request: Request, call_next):
         user_id = request.cookies.get("user_id")
 
